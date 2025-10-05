@@ -1,48 +1,61 @@
 import axios from "axios";
 import { BASE_URL } from "./apiPaths";
 
+/**
+ * Axios instance with pre-configured settings for API communication
+ * Includes automatic token attachment and global error handling
+ */
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  timeout: 10000, // 10 second timeout
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
 
-// Request Interceptor
+/**
+ * Request Interceptor
+ * Automatically attaches JWT token to all outgoing requests
+ */
 axiosInstance.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem("token");
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    // Get token from localStorage and add to Authorization header
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
-  // ✅ Removed duplicate error handler
+  (error) => Promise.reject(error)
 );
 
-// Response Interceptor
+/**
+ * Response Interceptor
+ * Handles common HTTP errors globally across the application
+ */
 axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  // Successful responses pass through unchanged
+  (response) => response,
+
+  // Handle error responses
   (error) => {
-    // Handle common errors globally
     if (error.response) {
-      if (error.response.status === 401) {
-        // ✅ Clear token before redirecting to login
+      const { status } = error.response;
+
+      if (status === 401) {
+        // Unauthorized - token expired or invalid
         localStorage.removeItem("token");
-        window.location.href = "/login";
-      } else if (error.response.status === 500) {
+        console.warn("Session expired. Please login again.");
+      } else if (status === 500) {
+        // Server error
         console.error("Server error. Please try again later.");
       }
     } else if (error.code === "ECONNABORTED") {
-      console.error("Request timeout. Please try again.");
+      // Network timeout
+      console.error("Request timeout. Check your connection.");
     }
+
     return Promise.reject(error);
   }
 );
