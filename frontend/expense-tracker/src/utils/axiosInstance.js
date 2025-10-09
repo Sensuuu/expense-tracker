@@ -6,7 +6,7 @@ import { BASE_URL } from "./apiPaths";
  * Includes automatic token attachment and global error handling
  */
 const axiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: import.meta.env.VITE_API_URL || BASE_URL || "http://localhost:8000",
   timeout: 10000, // 10 second timeout
   headers: {
     "Content-Type": "application/json",
