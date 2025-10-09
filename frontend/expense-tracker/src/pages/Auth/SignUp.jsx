@@ -8,7 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { validateEmail } from '../../utils/helper';
 import { API_PATHS } from '../../utils/apiPaths';
 import { useContext } from 'react';
-import { UserContext } from '../../context/userContext';
+import { UserContext } from '../../context/UserContext';
 
 const SignUp = () => {
     const [profilePic, setProfilePic] = useState(null);

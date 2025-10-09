@@ -1,0 +1,43 @@
+services:
+  # Backend API (No MongoDB container needed!)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: expense-tracker-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+      - MONGO_URI=mongodb+srv://anurag:CPjdeDFGQyRURSRT@expensetracker.2u09o6t.mongodb.net/?retryWrites=true&w=majority&appName=expenseTracker
+      - JWT_SECRET=141045fe49ec1d0cbc89d548b7ea2fa73830ed137baaf68a6a49dacc95ff0d815936bdf57b5add0f76a0f92779927aefccdb57210fc81cdea5d0eebc49dd5554
+      - GEMINI_API_KEY=AIzaSyCefXFZnAI41GajrYuQU6-KLKtlHRXtZYs
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/uploads:/app/uploads
+    networks:
+      - expense-tracker-network
+    command: npm run dev
+
+  # Frontend React App
+  frontend:
+    build:
+      context: ./frontend/expense-tracker
+      dockerfile: Dockerfile
+    container_name: expense-tracker-frontend
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    networks:
+      - expense-tracker-network
+
+networks:
+  expense-tracker-network:
+    driver: bridge
