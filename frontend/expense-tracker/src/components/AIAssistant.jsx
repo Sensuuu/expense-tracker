@@ -20,7 +20,7 @@ const AIAssistant = ({ dashboardData }) => {
 
     // Initialize Socket.IO
     useEffect(() => {
-        const newSocket = io('http://localhost:8000', {
+        const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:8000', {
             transports: ['websocket']
         });
 

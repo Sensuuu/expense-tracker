@@ -18,7 +18,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 // ✅ Configure Socket.IO with CORS
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: process.env.CLIENT_URL || "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
