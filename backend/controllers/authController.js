@@ -6,16 +6,18 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 };
 
+// Helper function to convert old localhost URLs to relative paths
+const normalizeImageUrl = (url) => {
+  if (url && url.includes("localhost")) {
+    // Extract just the filename from the URL
+    const filename = url.split("/uploads/")[1];
+    return `/uploads/${filename}`;
+  }
+  return url;
+};
+
 // Register User
 exports.registerUser = async (req, res) => {
-  // Add these debug lines
-  // console.log("=== DEBUG INFO ===");
-  // console.log("Request Headers:", req.headers);
-  // console.log("Content-Type:", req.headers["content-type"]);
-  // console.log("Request Body:", req.body);
-  // console.log("Body type:", typeof req.body);
-  // console.log("==================");
-
   const { fullName, email, password, profileImageUrl } = req.body;
 
   // Validation: Check for missing fields
@@ -38,9 +40,15 @@ exports.registerUser = async (req, res) => {
       profileImageUrl,
     });
 
+    // Normalize image URL before sending response
+    const userResponse = user.toObject();
+    userResponse.profileImageUrl = normalizeImageUrl(
+      userResponse.profileImageUrl
+    );
+
     res.status(201).json({
       id: user._id,
-      user,
+      user: userResponse,
       token: generateToken(user._id),
     });
   } catch (err) {
@@ -62,15 +70,19 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid Credentials" });
     }
 
+    // Convert old localhost URLs to relative paths
+    const userResponse = user.toObject();
+    userResponse.profileImageUrl = normalizeImageUrl(
+      userResponse.profileImageUrl
+    );
+
     res.status(200).json({
       id: user._id,
-      user,
+      user: userResponse,
       token: generateToken(user._id),
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error registering user", error: err.message });
+    res.status(500).json({ message: "Error logging in", error: err.message });
   }
 };
 
@@ -83,10 +95,16 @@ exports.getUserInfo = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json(user);
+    // Convert old localhost URLs to relative paths
+    const userResponse = user.toObject();
+    userResponse.profileImageUrl = normalizeImageUrl(
+      userResponse.profileImageUrl
+    );
+
+    res.status(200).json(userResponse);
   } catch (err) {
     res
       .status(500)
-      .json({ message: "Error registering user", error: err.message });
+      .json({ message: "Error fetching user", error: err.message });
   }
 };
