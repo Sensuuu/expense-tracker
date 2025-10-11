@@ -37,13 +37,27 @@ const SideMenu = ({ activeMenu }) => {
                 <div className="flex flex-col items-center justify-center gap-3 mt-3 mb-7">
                     {user?.profileImageUrl ? (
                         <img
-                            src={
-                                user?.profileImageUrl?.startsWith('http')
-                                    ? user.profileImageUrl
-                                    : `${import.meta.env.VITE_API_URL}${user.profileImageUrl}`
-                            }
+                            src={(() => {
+                                const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+                                const profileUrl = user.profileImageUrl;
+
+                                // Debug logs (remove after fixing)
+                                console.log("API URL:", apiUrl);
+                                console.log("Profile URL from backend:", profileUrl);
+
+                                // If URL already has http/https, use as-is
+                                if (profileUrl?.startsWith('http')) {
+                                    console.log("Using full URL:", profileUrl);
+                                    return profileUrl;
+                                }
+
+                                // Otherwise prepend backend URL
+                                const fullUrl = `${apiUrl}${profileUrl}`;
+                                console.log("Constructed URL:", fullUrl);
+                                return fullUrl;
+                            })()}
                             alt="Profile Image"
-                            className="w-20 h-20 bg-slate-400 rounded-full object-cover" />
+                            className="w-20 h-20 bg-slate-400 rounded-full " />
                     ) : (<CharAvtar
                         fullName={user?.fullName}
                         width="w-20"
