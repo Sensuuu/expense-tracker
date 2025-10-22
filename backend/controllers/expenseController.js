@@ -40,6 +40,39 @@ exports.getAllExpense = async (req, res) => {
   }
 };
 
+// Update Expense Source
+exports.updateExpense = async (req, res) => {
+  try {
+    const { icon, category, amount, date } = req.body;
+    const { id } = req.params;
+
+    // Validation: Check for missing fields
+    if (!category || !amount || !date) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const updatedExpense = await Expense.findByIdAndUpdate(
+      id,
+      {
+        icon,
+        category,
+        amount,
+        date: new Date(date),
+      },
+      { new: true } // Return updated document
+    );
+
+    if (!updatedExpense) {
+      return res.status(404).json({ message: "Expense not found" });
+    }
+
+    res.status(200).json(updatedExpense);
+  } catch (error) {
+    console.error("Error updating expense:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 // Delete Expense Source
 exports.deleteExpense = async (req, res) => {
   try {

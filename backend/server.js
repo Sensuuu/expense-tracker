@@ -15,10 +15,10 @@ const incomeRoutes = require("./routes/incomeRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 
-// ✅ Initialize Gemini AI
+// Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// ✅ Configure CORS to handle Vercel preview deployments
+// Configure CORS to handle Vercel preview deployments
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",

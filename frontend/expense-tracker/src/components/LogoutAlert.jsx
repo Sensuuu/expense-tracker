@@ -1,12 +1,35 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 
-/**
- * LogoutAlert - Confirmation dialog for user logout
- * Displays a warning message before logging out the user
- */
 const LogoutAlert = ({ onConfirm, onCancel }) => {
+
+
+    const alertref = useRef(null);
+
+    // Auto-focus when mounted
+    useEffect(() => {
+        if (alertref.current) {
+            alertref.current.focus()
+        }
+    }, [])
+
+    //Handle Enter Key press
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            onConfirm()
+        } else if (e.key === 'Escape') {
+            e.preventDefault()
+            onCancel()
+        }
+    }
+
     return (
-        <div>
+        <div
+            onKeyDown={handleKeyDown}
+            ref={alertref}
+            tabIndex="-1"
+            className='outline-none'
+        >
             <p className="text-sm text-gray-600 mb-6">
                 Are you sure you want to logout? You will need to login again to access your account.
             </p>

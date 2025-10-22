@@ -15,6 +15,7 @@ const Expense = () => {
     const [loading, setLoading] = useState(false);
     const [openDeleteAlert, setOpenDeleteAlert] = useState({ show: false, data: null, });
     const [openAddExpenseModal, setOpenAddExpenseModal] = useState(false);
+    const [editingExpense, setEditingExpense] = useState(null);
 
 
     //Get All Expense Details
@@ -38,7 +39,7 @@ const Expense = () => {
 
     };
 
-    // Handle Add Expense 
+    // Handle Add/Update Expense
     const handleAddExpense = async (expense) => {
         const { category, amount, date, icon } = expense;
 
@@ -51,21 +52,34 @@ const Expense = () => {
             toast.error("Amount should be a valid number greater than 0.");
             return;
         }
-        if (!category.trim()) {
+        if (!date.trim()) {
             toast.error("Date is required.");
             return;
         }
 
         try {
-            await axiosInstance.post(API_PATHS.EXPENSE.ADD_EXPENSE, {
-                category,
-                amount,
-                date,
-                icon,
-            });
+            if (editingExpense) {
+                // UPDATE MODE
+                await axiosInstance.put(API_PATHS.EXPENSE.UPDATE_EXPENSE(editingExpense._id), {
+                    category,
+                    amount,
+                    date,
+                    icon,
+                });
+                toast.success("Expense updated successfully");
+            } else {
+                // ADD MODE
+                await axiosInstance.post(API_PATHS.EXPENSE.ADD_EXPENSE, {
+                    category,
+                    amount,
+                    date,
+                    icon,
+                });
+                toast.success("Expense added successfully");
+            }
 
             setOpenAddExpenseModal(false)
-            toast.success("Expense added successfully");
+            setEditingExpense(null); // Reset editing state
             fetchExpenseDetails();
         } catch (error) {
             console.error(
@@ -89,6 +103,12 @@ const Expense = () => {
             );
         }
         setOpenDeleteAlert({ show: false, data: null });
+    };
+
+    // Handle Edit Click
+    const handleEditClick = (expense) => {
+        setEditingExpense(expense);
+        setOpenAddExpenseModal(true);
     };
 
     //Handle download expense details 
@@ -132,7 +152,10 @@ const Expense = () => {
                 <div className="">
                     <ExpenseOverview
                         transactions={expenseData}
-                        onExpenseIncome={() => setOpenAddExpenseModal(true)}
+                        onExpenseIncome={() => {
+                            setEditingExpense(null); // Reset editing state when adding new
+                            setOpenAddExpenseModal(true)
+                        }}
                     />
                 </div>
 
@@ -141,16 +164,23 @@ const Expense = () => {
                     onDelete={(id) => {
                         setOpenDeleteAlert({ show: true, data: id });
                     }}
+                    onEdit={handleEditClick} // Pass edit handler
                     onDownload={handleDownloadExpenseDetails}
                 />
             </div>
 
             <Modal
                 isOpen={openAddExpenseModal}
-                onClose={() => setOpenAddExpenseModal(false)}
-                title="Add Expense"
+                onClose={() => {
+                    setOpenAddExpenseModal(false)
+                    setEditingExpense(null); // Reset editing state on close
+                }}
+                title={editingExpense ? "Edit Expense" : "Add Expense"} // Dynamic title
             >
-                <AddExpenseForm onAddExpense={handleAddExpense} />
+                <AddExpenseForm
+                    editingExpense={editingExpense} // Pass editing data
+                    onAddExpense={handleAddExpense}
+                />
             </Modal>
 
             <Modal

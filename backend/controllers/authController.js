@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const path = require("path");
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -106,5 +108,89 @@ exports.getUserInfo = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error fetching user", error: err.message });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id; //From protect middleware
+    const { fullName, email, profileImageUrl, currentPassword, newPassword } =
+      req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    //Update basic info
+    if (fullName) user.fullName = fullName;
+
+    if (email) {
+      //Check if email already exists (for another user)
+      const existingUser = await User.findOne({ email, _id: { $ne: userId } });
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+      user.email = email;
+    }
+
+    //Update profile image
+    if (typeof profileImageUrl !== "undefined") {
+      // If the user had a previous image and it's changing or being deleted...
+      if (
+        user.profileImageUrl &&
+        user.profileImageUrl !== profileImageUrl &&
+        user.profileImageUrl.trim() !== ""
+      ) {
+        // Remove leading slash if present for compatibility with path.join
+        let oldImageRelativePath = user.profileImageUrl.startsWith("/")
+          ? user.profileImageUrl.substring(1)
+          : user.profileImageUrl;
+        let fullOldImagePath = path.join(__dirname, "..", oldImageRelativePath);
+
+        // Only delete if not default/seed image
+        if (fs.existsSync(fullOldImagePath)) {
+          try {
+            fs.unlinkSync(fullOldImagePath);
+          } catch (err) {
+            console.error("Error deleting old image:", err);
+          }
+        }
+      }
+      // Set to the new image, or an empty string if deleted
+      user.profileImageUrl = profileImageUrl;
+    }
+
+    //update password if provided
+    if (currentPassword && newPassword) {
+      const isPasswordValid = await user.comparePassword(currentPassword);
+      if (!isPasswordValid) {
+        return res
+          .status(400)
+          .json({ message: "Current password is incorrect" });
+      }
+      user.password = newPassword; // Will be hashed by pre-save hook
+    }
+
+    await user.save();
+
+    const userResponse = user.toObject();
+    userResponse.profileImageUrl = normalizeImageUrl(
+      userResponse.profileImageUrl
+    );
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: {
+        _id: userResponse._id,
+        fullName: userResponse.fullName,
+        email: userResponse.email,
+        profileImageUrl: userResponse.profileImageUrl,
+      },
+    });
+  } catch (error) {
+    console.error("Upadte profile error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

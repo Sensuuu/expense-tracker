@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import DashboardLayout from '../../components/layouts/DashboardLayout'
 import IncomeOverview from '../../components/income/IncomeOverview';
 import axiosInstance from '../../utils/axiosInstance';
@@ -16,6 +16,7 @@ const Income = () => {
     const [loading, setLoading] = useState(false);
     const [openDeleteAlert, setOpenDeleteAlert] = useState({ show: false, data: null, });
     const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
+    const [editingIncome, setEditingIncome] = useState(null);
 
 
     //Get All Income Details
@@ -39,7 +40,7 @@ const Income = () => {
 
     };
 
-    // Handle Add Income 
+    // Handle Add/Update Income
     const handleAddIncome = async (income) => {
         const { source, amount, date, icon } = income;
 
@@ -52,21 +53,34 @@ const Income = () => {
             toast.error("Amount should be a valid number greater than 0.");
             return;
         }
-        if (!source.trim()) {
+        if (!date.trim()) {
             toast.error("Date is required.");
             return;
         }
 
         try {
-            await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, {
-                source,
-                amount,
-                date,
-                icon,
-            });
+            if (editingIncome) {
+                // Update income
+                await axiosInstance.put(API_PATHS.INCOME.UPDATE_INCOME(editingIncome._id), {
+                    source,
+                    amount,
+                    date,
+                    icon,
+                });
+                toast.success("Income updated successfully.")
+            } else {
+                // Add income
+                await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, {
+                    source,
+                    amount,
+                    date,
+                    icon,
+                });
+                toast.success("Income added successfully.")
+            }
 
             setOpenAddIncomeModal(false)
-            toast.success("Income added successfully");
+            setEditingIncome(null); //Reset editing state
             fetchIncomeDetails();
         } catch (error) {
             console.error(
@@ -90,6 +104,12 @@ const Income = () => {
             );
         }
         setOpenDeleteAlert({ show: false, data: null });
+    };
+
+    // Handle Edit Click
+    const handleEditClick = (income) => {
+        setEditingIncome(income);
+        setOpenAddIncomeModal(true);
     };
 
     //Handle download income details 
@@ -133,7 +153,10 @@ const Income = () => {
                     <div className="">
                         <IncomeOverview
                             transactions={incomeData}
-                            onAddIncome={() => setOpenAddIncomeModal(true)}
+                            onAddIncome={() => {
+                                setEditingIncome(null) // Reset editing state when adding new
+                                setOpenAddIncomeModal(true)
+                            }}
                         />
                     </div>
 
@@ -142,16 +165,23 @@ const Income = () => {
                         onDelete={(id) => {
                             setOpenDeleteAlert({ show: true, data: id });
                         }}
+                        onEdit={handleEditClick} // Pass edit handler
                         onDownload={handleDownloadIncomeDetails}
                     />
                 </div>
 
                 <Modal
                     isOpen={openAddIncomeModal}
-                    onClose={() => setOpenAddIncomeModal(false)}
-                    title="Add Income"
+                    onClose={() => {
+                        setOpenAddIncomeModal(false);
+                        setEditingIncome(null); // Reset editing state on close
+                    }}
+                    title={editingIncome ? "Edit Income" : "Add Income"} // Dynamic title
                 >
-                    <AddIncomeForm onAddIncome={handleAddIncome} />
+                    <AddIncomeForm
+                        onAddIncome={handleAddIncome}
+                        editingIncome={editingIncome} // Pass editing data
+                    />
                 </Modal>
 
                 <Modal

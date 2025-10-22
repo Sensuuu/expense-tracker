@@ -3,17 +3,19 @@ import { LuDownload } from 'react-icons/lu'
 import TransactionInfoCard from '../cards/TransactionInfoCard'
 import moment from 'moment'
 
-const ExpenseList = ({ transactions, onDelete, onDownload }) => {
+const ExpenseList = ({ transactions, onDelete, onDownload, onEdit }) => {
     return (
         <div className="card">
-            <div className="flex items-center justify-between">
-                <h5 className="text-lg">All Expense</h5>
+            {/* Header - Keep on same line on all screens */}
+            <div className="flex items-center justify-between mb-6">
+                <h5 className="text-lg font-medium">All Expense</h5>
                 <button className="card-btn" onClick={onDownload}>
                     <LuDownload className='text-base' /> Download
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2">
+            {/* Transaction Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {transactions?.map((expense) => (
                     <TransactionInfoCard
                         key={expense._id}
@@ -23,6 +25,7 @@ const ExpenseList = ({ transactions, onDelete, onDownload }) => {
                         amount={expense.amount}
                         type="expense"
                         onDelete={() => onDelete(expense._id)}
+                        onEdit={() => onEdit(expense)}
                     />
                 ))}
             </div>

@@ -28,7 +28,7 @@ exports.addIncome = async (req, res) => {
   }
 };
 
-// Get all income source
+// Get all Income source
 exports.getAllIncome = async (req, res) => {
   const userId = req.user.id;
 
@@ -36,6 +36,39 @@ exports.getAllIncome = async (req, res) => {
     const income = await Income.find({ userId }).sort({ date: -1 });
     res.json(income);
   } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// Update Income Source
+exports.updateIncome = async (req, res) => {
+  try {
+    const { icon, source, amount, date } = req.body;
+    const { id } = req.params;
+
+    // Validation: Check for missing fields
+    if (!source || !amount || !date) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const updatedIncome = await Income.findByIdAndUpdate(
+      id,
+      {
+        icon,
+        source,
+        amount,
+        date: new Date(date),
+      },
+      { new: true } // Return updated document
+    );
+
+    if (!updatedIncome) {
+      return res.status(404).json({ message: "Income not found" });
+    }
+
+    res.status(200).json(updatedIncome);
+  } catch (error) {
+    console.error("Error updating income:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

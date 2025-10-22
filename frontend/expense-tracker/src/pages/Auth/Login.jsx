@@ -1,99 +1,122 @@
-import React, { useState } from 'react'
-import AuthLayout from '../../components/layouts/AuthLayout'
-import { Link, useNavigate } from 'react-router-dom';
-import Input from '../../components/inputs/Input';
-import { validateEmail } from '../../utils/helper';
+import React, { useState, useContext } from 'react'
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
-import { useContext } from 'react';
 import { UserContext } from '../../context/UserContext';
+import Input from '../../components/inputs/Input';
+import { validateEmail } from '../../utils/helper';
 
 const Login = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState(null);
-
+    const navigate = useNavigate();
     const { updateUser } = useContext(UserContext);
 
-    const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState(null);
 
-    // Handle login form submit
     const handleLogin = async (e) => {
         e.preventDefault();
+        setError('');
 
         if (!validateEmail(email)) {
-            setError("Please enter a valid email address.")
+            setError('Please enter a valid email address.');
             return;
         }
 
         if (!password) {
-            setError("Please enter the password");
+            setError('Please enter the password.');
             return;
         }
 
-        setError("");
-
-        //Login API Call
         try {
             const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
                 email,
                 password,
             });
-            const { token, user } = response.data;
 
-            if (token) {
-                localStorage.setItem("token", token);
-                updateUser(user);
-                navigate("/dashboard");
+            if (response.data && response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                updateUser(response.data.user);
+                navigate('/dashboard');
             }
         } catch (error) {
-            if (error.response && error.response.data.message) {
+            if (error.response && error.response.data && error.response.data.message) {
                 setError(error.response.data.message);
             } else {
-                setError("Something went wrong. Please try again.");
+                setError('An unexpected error occurred. Please try again.');
             }
         }
-    }
+    };
 
     return (
-        <AuthLayout>
-            <div className="lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center">
-                <h3 className='text-xl font-semibold text-black'>Welcome Back</h3>
-                <p className='text-xs text-state-700 mt-[5px] mb-6'>
-                    Please enter your details to log in
-                </p>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+            {/* ✅ Card: Small on mobile (max-w-md), Medium on desktop (md:max-w-lg) */}
+            <div className="w-full max-w-md md:max-w-lg bg-white rounded-2xl shadow-lg p-6 sm:p-8">
 
-                <form onSubmit={handleLogin} >
+                {/* Header */}
+                <div className="text-center mb-6">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                        Expense Tracker
+                    </h1>
+                    {/* ✅ Decorative divider */}
+                    <div className="w-16 h-0.5 bg-primary mx-auto my-3"></div>
+
+                    <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-1">
+                        Welcome Back
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                        Please login to your account.
+                    </p>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={handleLogin} className="space-y-4">
+
                     <Input
-                        value={email}
-                        onChange={({ target }) => setEmail(target.value)}
                         label="Email Address"
-                        placeholder='john@example.com'
-                        type='text'
+                        type="email"
+                        placeholder="john@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                     />
+
                     <Input
-                        value={password}
-                        onChange={({ target }) => setPassword(target.value)}
                         label="Password"
-                        placeholder="Min 8 Characters"
                         type="password"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                     />
 
-                    {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
+                    {/* Error Message */}
+                    {error && (
+                        <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+                            {error}
+                        </div>
+                    )}
 
-                    <button type="submit" className="btn-primary">
+                    {/* Submit Button */}
+                    <button
+                        type="submit"
+                        className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-lg transition-colors"
+                    >
                         LOGIN
                     </button>
 
-                    <p className='text-[13px] text-slate-800 mt-3'>
-                        Don't have an account?{""}
-                        <Link className="font-medium text-primary underline " to="/signup" >
-                            SignUp
-                        </Link>
+                    {/* ✅ Reduced margin */}
+                    <p className="text-center text-sm text-gray-600 mt-3">
+                        Don't have an account?{' '}
+                        <button
+                            type="button"
+                            onClick={() => navigate('/signUp')}
+                            className="text-primary font-medium hover:underline"
+                        >
+                            Sign Up
+                        </button>
                     </p>
                 </form>
             </div>
-        </AuthLayout>
+        </div>
     )
 }
 
