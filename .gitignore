@@ -1,6 +1,18 @@
+# Environment files
+.env
+backend/.env
+frontend/expense-tracker/.env
+
 # Docker
 .env.docker
 docker-compose.override.yml
+
+# Node
+node_modules/
+
+# Logs
+logs
+*.log
 
 # Volumes
 mongodb_data/

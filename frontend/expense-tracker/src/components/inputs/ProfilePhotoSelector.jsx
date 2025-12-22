@@ -21,7 +21,7 @@ const ProfilePhotoSelector = ({ image, setImage, onDelete, imageDeleted }) => {
                 : `${apiUrl}${user.profileImageUrl}`;
             setPreviewUrl(fullUrl);
         }
-    }, [user?.profileImageUrl, imageDeleted]);
+    }, [user?.profileImageUrl, imageDeleted, image]);
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];

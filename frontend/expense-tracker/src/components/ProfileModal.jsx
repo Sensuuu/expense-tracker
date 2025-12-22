@@ -48,7 +48,7 @@ const ProfileModal = ({ children, isOpen, onClose, title = 'Profile Settings' })
                             </div>
 
                             {/* Body */}
-                            <div className="p-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+                            <div className="p-6 max-h-[calc(100vh-180px)] overflow-y-auto md:overflow-y-hidden">
                                 {children}
                             </div>
                         </div>

@@ -3,7 +3,7 @@ import React from 'react'
 import moment from 'moment'
 import TransactionInfoCard from '../cards/TransactionInfoCard'
 
-const RecentTransactions = ({ transactions, onSeeMore, onDelete, onEdit }) => {
+const RecentTransactions = ({ transactions, onDelete, onEdit }) => {
     return (
         <div className="card">
             <div className="flex items-center justify-between mb-6">

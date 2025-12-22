@@ -3,7 +3,7 @@ import { LuArrowRight } from 'react-icons/lu'
 import TransactionInfoCard from '../cards/TransactionInfoCard'
 import moment from 'moment'
 
-const ExpenseTransactions = ({ transactions, onSeeMore, hideDeleteBtn, onDelete }) => {
+const ExpenseTransactions = ({ transactions, onSeeMore, }) => {
     return (
         <div className="card">
             <div className="flex items-center justify-between">

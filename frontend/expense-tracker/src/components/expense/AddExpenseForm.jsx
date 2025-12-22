@@ -36,7 +36,7 @@ const AddExpenseForm = ({ onAddExpense, editingExpense }) => {
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault(); // Prevent default form submission
-            onAddIncome(income); // Submit the form
+            onAddExpense(expense); // Submit the form
         }
     };
 

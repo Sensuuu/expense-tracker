@@ -36,13 +36,14 @@ const TransactionInfoCard = ({ title, icon, date, amount, type, hideDeleteBtn, h
             <div
                 className="flex items-center gap-3 flex-1 min-w-0"
             >
-                <div
-                    className="w-10 h-10 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center"
-                >
-                    <LuUtensils
-                        className='text-gray-600 text-xl'
-                    />
+                <div className="w-10 h-10 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center text-xl">
+                    {icon ? (
+                        <span>{icon}</span>
+                    ) : (
+                        <LuUtensils className="text-gray-600 text-xl" />
+                    )}
                 </div>
+
                 <div className="flex-1 min-w-0" >
                     <h4
                         className="font-medium text-gray-900 text-sm truncate"

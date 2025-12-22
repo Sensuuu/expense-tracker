@@ -22,14 +22,14 @@ const ProfileUpdateForm = ({ onClose }) => {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
+    // const [success, setSuccess] = useState(null);
     const [loading, setLoading] = useState(false);
 
     // Handle Update Profile
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
         setError('');
-        setSuccess('');
+        // setSuccess('');
 
         if (!fullName) {
             setError('Please enter your name.');
@@ -135,7 +135,7 @@ const ProfileUpdateForm = ({ onClose }) => {
         <form
             ref={formRef}
             onSubmit={handleUpdateProfile}
-            className="space-y-4"
+            className="space-y-3"
             onKeyDown={handlekeyDown}
             tabIndex="-1"
             style={{ outline: 'none' }}
@@ -149,29 +149,32 @@ const ProfileUpdateForm = ({ onClose }) => {
             />
 
             {/* Full Name */}
-            <Input
-                value={fullName}
-                onChange={({ target }) => setFullName(target.value)}
-                label="Full Name"
-                placeholder="John Doe"
-                type="text"
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                    value={fullName}
+                    onChange={({ target }) => setFullName(target.value)}
+                    label="Full Name"
+                    placeholder="John Doe"
+                    type="text"
+                />
 
-            {/* Email */}
-            <Input
-                value={email}
-                onChange={({ target }) => setEmail(target.value)}
-                label="Email Address"
-                placeholder="john@example.com"
-                type="email"
-            />
+                {/* Email */}
+                <Input
+                    value={email}
+                    onChange={({ target }) => setEmail(target.value)}
+                    label="Email Address"
+                    placeholder="john@example.com"
+                    type="email"
+                />
+            </div>
 
             {/* Password Section */}
-            <div className="border-t pt-4">
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">
+            <div className="border-t pt-3">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">
                     Change Password (Optional)
                 </h4>
 
+                {/* Current Password - full width */}
                 <Input
                     value={currentPassword}
                     onChange={({ target }) => setCurrentPassword(target.value)}
@@ -180,21 +183,25 @@ const ProfileUpdateForm = ({ onClose }) => {
                     type="password"
                 />
 
-                <Input
-                    value={newPassword}
-                    onChange={({ target }) => setNewPassword(target.value)}
-                    label="New Password"
-                    placeholder="Min 8 characters"
-                    type="password"
-                />
+                {/* New Password & Confirm Password */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
 
-                <Input
-                    value={confirmPassword}
-                    onChange={({ target }) => setConfirmPassword(target.value)}
-                    label="Confirm New Password"
-                    placeholder="Re-enter new password"
-                    type="password"
-                />
+                    <Input
+                        value={newPassword}
+                        onChange={({ target }) => setNewPassword(target.value)}
+                        label="New Password"
+                        placeholder="Min 8 characters"
+                        type="password"
+                    />
+
+                    <Input
+                        value={confirmPassword}
+                        onChange={({ target }) => setConfirmPassword(target.value)}
+                        label="Confirm New Password"
+                        placeholder="Re-enter new password"
+                        type="password"
+                    />
+                </div>
             </div>
 
             {/* Error/Success Messages */}
