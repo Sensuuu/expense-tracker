@@ -79,7 +79,11 @@ const io = new Server(server, {
         }
         return false;
       });
-      callback(null, isAllowed);
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"), false);
+      }
     },
     methods: ["GET", "POST"],
     credentials: true,

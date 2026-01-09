@@ -21,8 +21,9 @@ const AIAssistant = ({ dashboardData }) => {
 
     useEffect(() => {
         const newSocket = io(BASE_URL, {
-            transports: ['websocket']
+            withCredentials: true
         });
+
 
         newSocket.on('connect', () => console.log('✅ Connected'));
         newSocket.on('ai-response', (data) => {
