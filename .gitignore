@@ -6,6 +6,7 @@ frontend/expense-tracker/.env
 # Docker
 .env.docker
 docker-compose.override.yml
+docker-compose.yml
 
 # Node
 node_modules/
